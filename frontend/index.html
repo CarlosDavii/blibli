@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Online</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            padding: 20px;
+        }
+        .message {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .user-info {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bem-vindo à Biblioteca Online</h1>
+    <div id="message" class="message"></div>
+
+    <h2>Login</h2>
+    <form id="form-login">
+        <label for="login-username">Login:</label>
+        <input type="text" id="login-username" required>
+        <label for="login-password">Senha:</label>
+        <input type="password" id="login-password" required>
+        <button type="submit">Entrar</button>
+    </form>
+
+    <div id="user-info" class="user-info" style="display: none;">
+        <p><strong>Bem-vindo:</strong> <span id="user-name"></span></p>
+        <p><strong>Seu ID:</strong> <span id="user-id"></span></p>
+    </div>
+
+    <h2>Cadastrar Usuário</h2>
+    <form id="form-cadastrar-usuario">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" required>
+        <label for="login">Login:</label>
+        <input type="text" id="login" required>
+        <label for="senha">Senha:</label>
+        <input type="password" id="senha" required>
+        <label for="tipo">Tipo de Usuário:</label>
+        <select id="tipo" required>
+            <option value="Aluno">Aluno</option>
+            <option value="Professor">Professor</option>
+            <option value="Bibliotecário">Bibliotecário</option>
+            <option value="Administrador">Administrador</option>
+        </select>
+        <button type="submit">Cadastrar Usuário</button>
+    </form>
+
+    <h2>Cadastrar Livro</h2>
+    <form id="form-cadastrar-livro">
+        <label for="id_usuario">ID do Usuário:</label>
+        <input type="text" id="id_usuario" required>
+        <label for="titulo">Título do Livro:</label>
+        <input type="text" id="titulo" required>
+        <label for="autor">Autor:</label>
+        <input type="text" id="autor" required>
+        <label for="assunto">Assunto:</label>
+        <input type="text" id="assunto" required>
+        <button type="submit">Cadastrar Livro</button>
+    </form>
+
+    <h2>Reservar Livro</h2>
+    <form id="form-reservar-livro">
+        <label for="id_usuario_reserva">ID do Usuário:</label>
+        <input type="text" id="id_usuario_reserva" required>
+        <label for="id_livro_reserva">ID do Livro:</label>
+        <input type="text" id="id_livro_reserva" required>
+        <button type="submit">Reservar Livro</button>
+    </form>
+
+    <h2>Lista de Livros</h2>
+    <button id="listar-livros">Atualizar Lista de Livros</button>
+    <ul id="lista-livros"></ul>
+
+    <script>
+        const baseUrl = 'http://localhost:3000';
+
+        const showMessage = (message, isSuccess = true) => {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${isSuccess ? 'success' : 'error'}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => messageDiv.style.display = 'none', 5000);
+        };
+
+        document.getElementById('form-login').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const login = document.getElementById('login-username').value;
+            const senha = document.getElementById('login-password').value;
+            try {
+                const response = await fetch(`${baseUrl}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ login, senha })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage(data.message, true);
+                    document.getElementById('user-info').style.display = 'block';
+                    document.getElementById('user-name').textContent = data.nome;
+                    document.getElementById('user-id').textContent = data.id_usuario;
+                } else {
+                    showMessage(data.message, false);
+                }
+            } catch (error) {
+                showMessage('Erro ao conectar ao servidor.', false);
+            }
+        });
+
+        document.getElementById('form-cadastrar-usuario').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nome = document.getElementById('nome').value;
+            const login = document.getElementById('login').value;
+            const senha = document.getElementById('senha').value;
+            const tipo = document.getElementById('tipo').value;
+            try {
+                const response = await fetch(`${baseUrl}/cadastrar-usuario`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, login, senha, tipo })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage(data.message, true);
+                    document.getElementById('form-cadastrar-usuario').reset();
+                } else {
+                    showMessage(data.message, false);
+                }
+            } catch (error) {
+                showMessage('Erro ao conectar ao servidor.', false);
+            }
+        });
+
+        document.getElementById('form-cadastrar-livro').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id_usuario = document.getElementById('id_usuario').value;
+            const titulo = document.getElementById('titulo').value;
+            const autor = document.getElementById('autor').value;
+            const assunto = document.getElementById('assunto').value;
+            try {
+                const response = await fetch(`${baseUrl}/cadastrar-livro`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_usuario, titulo, autor, assunto })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage(data.message, true);
+                    document.getElementById('form-cadastrar-livro').reset();
+                } else {
+                    showMessage(data.message, false);
+                }
+            } catch (error) {
+                showMessage('Erro ao conectar ao servidor.', false);
+            }
+        });
+
+        document.getElementById('form-reservar-livro').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id_usuario = document.getElementById('id_usuario_reserva').value;
+            const id_livro = document.getElementById('id_livro_reserva').value;
+            try {
+                const response = await fetch(`${baseUrl}/reservar-livro`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_usuario, id_livro })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage(data.message, true);
+                    document.getElementById('form-reservar-livro').reset();
+                } else {
+                    showMessage(data.message, false);
+                }
+            } catch (error) {
+                show
+                showMessage('Erro ao conectar ao servidor.', false);
+            }
+        });
+
+        document.getElementById('listar-livros').addEventListener('click', async () => {
+            try {
+                const response = await fetch(`${baseUrl}/livros`);
+                const livros = await response.json();
+                const listaLivros = document.getElementById('lista-livros');
+                listaLivros.innerHTML = '';
+                livros.forEach((livro) => {
+                    const li = document.createElement('li');
+                    li.textContent = `Título: ${livro.titulo}, Autor: ${livro.autor}, Assunto: ${livro.assunto}, Status: ${livro.status}, ID: ${livro.id_livro}`;
+                    listaLivros.appendChild(li);
+                });
+            } catch (error) {
+                showMessage('Erro ao buscar a lista de livros.', false);
+            }
+        });
+    </script>
+</body>
+</html>

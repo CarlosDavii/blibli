@@ -1,0 +1,21 @@
+<form action="http://localhost:3000/cadastrar-usuario" method="POST">
+    <label for="nome">Nome:</label>
+    <input type="text" id="nome" name="nome" required><br><br>
+
+    <label for="login">Login:</label>
+    <input type="text" id="login" name="login" required><br><br>
+
+    <label for="senha">Senha:</label>
+    <input type="password" id="senha" name="senha" required><br><br>
+
+    <label for="tipo">Tipo de Usuário:</label>
+    <select id="tipo" name="tipo" required>
+        <option value="Aluno">Aluno</option>
+        <option value="Professor">Professor</option>
+        <option value="Usuário Externo">Usuário Externo</option>
+        <option value="Bibliotecário">Bibliotecário</option>
+        <option value="Administrador">Administrador</option>
+    </select><br><br>
+
+    <button type="submit">Cadastrar</button>
+</form>
